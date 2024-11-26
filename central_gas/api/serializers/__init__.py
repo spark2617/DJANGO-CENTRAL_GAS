@@ -1,0 +1,5 @@
+from .endereco_serializer import EnderecoSerializer
+from .cliente_serializer import ClienteSerializer
+from .empresa_serializer import EmpresaSerializer
+from .produto_serializer import ProdutoSerializer
+from .pedido_serializer import PedidoSerializer

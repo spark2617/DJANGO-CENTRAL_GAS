@@ -25,11 +25,7 @@ SECRET_KEY = 'django-insecure-+0j*2gn+g^4geowpl=2d!1-s844zydsdq8wt66urj8@33##@$-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '2470-177-155-84-107.ngrok-free.app',
-    'localhost',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = ["*"]
 
 WPP_CONNECT_URL = "http://localhost:21465/api/test/send-message"
 WPP_CONNECT_TOKEN = "$2b$10$0BfBxNJSVkcthgqpR1_72uD5kHlhGgKyXeXpJhc_SrIecqxIT7iyi"
@@ -44,7 +40,6 @@ APPEND_SLASH = False
 CSRF_TRUSTED_ORIGINS = [
     'https://2470-177-155-84-107.ngrok-free.app'
 ]
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -113,7 +108,7 @@ REST_FRAMEWORK = {
     ),
     
 }
-AUTH_USER_MODEL = 'api.Cliente'
+AUTH_USER_MODEL = 'api.CustomUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

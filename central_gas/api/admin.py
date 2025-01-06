@@ -4,7 +4,8 @@ from .models.cliente import Cliente
 from .models.pedido import Pedido
 from .models.produto import Produto, PrecoProdutoEmpresa
 from .models.endereco import Endereco
-
+from .models.user import CustomUser
+from django.contrib.auth.admin import UserAdmin
 
 # Admin para Endereço
 class EnderecoAdmin(admin.ModelAdmin):
@@ -13,18 +14,29 @@ class EnderecoAdmin(admin.ModelAdmin):
     list_filter = ['cidade', 'estado']
 
 
-# Admin para Cliente
+
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ['nome_completo', 'telefone', 'endereco']
-    search_fields = ['nome_completo', 'telefone']
-    list_filter = ['endereco__cidade']  # Relacionamento direto com cidade no endereço
+    list_display = ['nome_completo', 'get_telefone', 'endereco']
+    search_fields = ['nome_completo', 'user__telefone']  # Considerando que 'telefone' está no CustomUser
+    list_filter = ['endereco__cidade']
+
+    def get_telefone(self, obj):
+        return obj.user.telefone  # Acessa o telefone do CustomUser
+    get_telefone.short_description = 'Telefone'
 
 
-# Admin para Empresa
 class EmpresaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nome', 'endereco']
+    list_display = ['id', 'nome', 'mostrar_telefone', 'listar_endereco']
     search_fields = ['nome', 'telefone']
     list_filter = ['endereco__cidade']  # Relacionamento direto com cidade no endereço
+
+    def mostrar_telefone(self, obj):
+        return obj.user.telefone  # Exibe o telefone da empresa
+    mostrar_telefone.short_description = "Telefone"
+
+    def listar_endereco(self, obj):
+        return f"{obj.endereco.rua}, {obj.endereco.numero} - {obj.endereco.cidade}, {obj.endereco.estado}" if obj.endereco else "Sem endereço"
+    listar_endereco.short_description = "Endereço"
 
 
 # Admin para Produto
@@ -49,7 +61,7 @@ class PedidoAdmin(admin.ModelAdmin):
 
 # Admin para PrecoProdutoEmpresa
 class PrecoProdutoEmpresaAdmin(admin.ModelAdmin):
-    list_display = ['empresa', 'produto', 'preco', 'descricao']
+    list_display = ['empresa', 'produto', 'preco', 'descricao_empresa_produto']
     search_fields = ['empresa__nome', 'produto__nome']
     list_filter = ['empresa', 'produto']  # Filtros laterais
     ordering = ['empresa', 'produto']  # Ordenação padrão
@@ -57,8 +69,36 @@ class PrecoProdutoEmpresaAdmin(admin.ModelAdmin):
 
     def descricao_empresa_produto(self, obj):
         # Exibe a descrição de forma mais clara
-        return f"{obj.empresa.nome} - {obj.produto.nome}"
+        return f"{obj.empresa.nome} - {obj.produto.nome} | Preço: {obj.preco}"
     descricao_empresa_produto.short_description = "Empresa e Produto"
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
+
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ['telefone', 'tipo', 'is_active', 'is_staff', 'is_superuser', "codigo_verificacao", "codigo_recuperacao"]
+    list_filter = ['is_active', 'is_staff', 'is_superuser']
+    search_fields = ['telefone', 'tipo']
+    ordering = ['telefone']
+
+    fieldsets = (
+        (None, {'fields': ('telefone', 'tipo', 'password')}),
+        ('Permissões', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+    )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('telefone', 'tipo', 'password1', 'password2', 'is_active', 'is_staff', 'is_superuser'),
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        obj.save()
+
+# Registra o modelo CustomUser no Django Admin
+admin.site.register(CustomUser, CustomUserAdmin)
 
 
 # Registro dos modelos no admin

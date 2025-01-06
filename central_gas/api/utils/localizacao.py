@@ -1,4 +1,4 @@
-from ..models import Empresa, Cliente, Produto
+from ..models import Empresa, Cliente, Produto, CustomUser
 from api.models.produto import PrecoProdutoEmpresa
 from geopy.distance import geodesic
 
@@ -6,8 +6,9 @@ from geopy.distance import geodesic
 def buscar_empresa_com_produtos_proximas(token, lista_produtos):
     try:
         # Decodificando o token para pegar o cliente
-        cliente = Cliente.objects.get(auth_token=token)
-    except Cliente.DoesNotExist:
+        user = CustomUser.objects.get(auth_token=token)
+        cliente = user.cliente
+    except CustomUser.DoesNotExist:
         return {"error": "Cliente não encontrado"}
 
     coordenadas_cliente = (float(cliente.endereco.lat), float(cliente.endereco.lon))

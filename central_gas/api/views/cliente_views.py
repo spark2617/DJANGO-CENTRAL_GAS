@@ -18,7 +18,7 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Cliente.objects.filter(telefone=user.telefone)
+        return Cliente.objects.filter(user__telefone=user.telefone)
 
     def create(self, request, *args, **kwargs):
         # Dados recebidos no request
